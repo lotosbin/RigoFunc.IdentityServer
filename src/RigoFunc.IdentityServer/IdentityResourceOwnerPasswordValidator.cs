@@ -1,6 +1,4 @@
-﻿// Copyright (c) RigoFunc (xuyingting). All rights reserved.
-
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Identity;
 

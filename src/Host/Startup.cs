@@ -1,7 +1,7 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using Host.Configuration;
+using Host.EntityFrameworkCore;
 using Host.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 using RigoFunc.ApiCore.Filters;
 using RigoFunc.IdentityServer;
-using RigoFunc.IdentityServer.EntityFrameworkCore;
 
 namespace Host {
     public class Startup {
@@ -44,8 +43,11 @@ namespace Host {
             .AddEntityFrameworkStores<AppDbContext, int>()
             .AddDefaultTokenProviders();
 
-            services.AddSmlEmailServices(options => {
-
+            // Sms and email services
+            services.AddSmsEmailService(options => {
+                options.SmsApiUrl = "http://www.xyting.org";
+                options.ProductName = "rigofunc";
+                options.ProductValue = "rigofunc";
             });
 
             var cert = new X509Certificate2(Path.Combine(_environment.ContentRootPath, "idsrv3test.pfx"), "idsrv3test");
@@ -54,18 +56,13 @@ namespace Host {
                 .SetSigningCredentials(cert)
                 .AddInMemoryClients(Clients.Get())
                 .AddInMemoryScopes(Scopes.Get())
-                .UseAspNetCoreIdentity<AppUser, int>();
-
-            services.AddCors(options => {
-                options.AddPolicy("AllowCors",
-                    policy => policy
-                    .AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .SetPreflightMaxAge(TimeSpan.FromMinutes(3)));
-            });
-
-            builder.AddCustomGrantValidator<CustomGrantValidator>();
+                .AddCustomGrantValidator<CustomGrantValidator>()
+                .UseAspNetCoreIdentity<AppUser, int>()
+                .UseAccountApi<AppUser, int>(options => {
+                    options.DefaultClientId = "system";
+                    options.DefaultClientSecret = "secret";
+                    options.DefaultScope = "doctor order payment";
+                });
 
             // for the UI
             services
@@ -92,8 +89,6 @@ namespace Host {
             loggerFactory.AddDebug();
 
             app.UseDeveloperExceptionPage();
-
-            app.UseCors("AllowCors");
 
             app.UseStaticFiles();
 

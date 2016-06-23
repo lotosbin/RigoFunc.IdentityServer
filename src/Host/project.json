@@ -18,10 +18,9 @@
       "version": "1.0.0-preview1-final",
       "type": "build"
     },
-    "Microsoft.AspNetCore.Cors": "1.0.0-rc2-final",
     "IdentityServer4": "1.0.0-beta3",
-    "RigoFunc.ApiCore": "1.0.0",
-    "RigoFunc.OAuth": "1.0.0-*",
+    "RigoFunc.ApiCore": "1.0.3",
+    "RigoFunc.OAuth": "1.0.1",
     "RigoFunc.IdentityServer": "1.0.0-*"
   },
 
