@@ -4,8 +4,9 @@
 #exit if any command fails
 set -e
 
-wget http://download.microsoft.com/download/C/3/F/C3FB57E8-03EB-4D82-946D-C0FD9864450C/dotnet-ubuntu-x64.1.0.0-rc2-3002702.tar.gz
-tar -zxvf dotnet-ubuntu-x64.1.0.0-rc2-3002702.tar.gz
+wget https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0-preview1/scripts/obtain/dotnet-install.sh
+chmod a+x dotnet-install.sh
+./dotnet-install.sh
 
 artifactsFolder="./artifacts"
 
@@ -13,13 +14,13 @@ if [ -d $artifactsFolder ]; then
   rm -R $artifactsFolder
 fi
 
-./dotnet restore
+dotnet restore
  
 #dotnet test ./src/Host -c Debug -f netcoreapp1.0
-./dotnet build ./src/Host -c Debug -f netcoreapp1.0
+dotnet build ./src/Host -c Debug -f netcoreapp1.0
 
 #dotnet test ./src/RigoFunc.IdentityServer -c Debug -f netcoreapp1.0
-./dotnet build ./src/RigoFunc.IdentityServer Host -c Debug -f netcoreapp1.0
+dotnet build ./src/RigoFunc.IdentityServer Host -c Debug -f netcoreapp1.0
 
 
 revision=${TRAVIS_JOB_ID:=1}  
