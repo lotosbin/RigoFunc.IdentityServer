@@ -19,7 +19,7 @@ using RigoFunc.IdentityServer.Api;
 namespace RigoFunc.IdentityServer {
     public static class IIdentityServerBuilderExtensions {
         public static IIdentityServerBuilder UseAspNetCoreIdentity<TUser, TKey>(this IIdentityServerBuilder builder) 
-            where TUser : IdentityUser<TKey>, new() where TKey : IEquatable<TKey> {
+            where TUser : IdentityUser<TKey> where TKey : IEquatable<TKey> {
             var services = builder.Services;
 
             services.TryAddTransient<SignInManager<TUser>, IdentityServerSignInManager<TUser>>();
@@ -50,8 +50,9 @@ namespace RigoFunc.IdentityServer {
             if (setupAction != null) {
                 services.Configure(setupAction);
             }
+            // try add default account service, or use the end-user DI in startup.cs
             services.TryAddTransient<IAccountService, AccountService<TUser, TKey>>();
-            services.TryAddTransient<ICorsPolicyService, IdentityCorsPolicyService>();
+            services.AddTransient<ICorsPolicyService, IdentityCorsPolicyService>();
 
             var paths = new List<string>(Constants.RoutePaths.CorsPaths);
 

@@ -27,7 +27,7 @@ namespace RigoFunc.IdentityServer.Api {
         /// <summary>
         /// Verifies the specified code asynchronous.
         /// </summary>
-        /// <param name="model">The veriry code model.</param>
+        /// <param name="model">The verify code model.</param>
         /// <returns>A <see cref="Task{TResult}"/> represents the verify operation.</returns>
         Task<IResponse> VerifyCodeAsync(VerifyCodeInputModel model);
         /// <summary>

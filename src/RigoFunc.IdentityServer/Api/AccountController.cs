@@ -6,7 +6,7 @@ using RigoFunc.OAuth;
 
 namespace RigoFunc.IdentityServer.Api {
     [Route("api/[controller]")]
-    public class AccountController : ControllerBase {
+    public class AccountController {
         private readonly IAccountService _service;
         private readonly ILogger<AccountController> _logger;
 
@@ -17,7 +17,7 @@ namespace RigoFunc.IdentityServer.Api {
 
         [HttpPost("[action]")]
         public async Task<IResponse> Register([FromBody]RegisterInputModel model) {
-            if (model == null || !ModelState.IsValid) {
+            if (model == null) {
                 throw new ArgumentNullException(nameof(model));
             }
 
@@ -26,7 +26,7 @@ namespace RigoFunc.IdentityServer.Api {
 
         [HttpPost("[action]")]
         public async Task<bool> SendCode([FromBody]SendCodeInputModel model) {
-            if (model == null || !ModelState.IsValid) {
+            if (model == null) {
                 throw new ArgumentNullException(nameof(model));
             }
 
@@ -35,7 +35,7 @@ namespace RigoFunc.IdentityServer.Api {
 
         [HttpPost("[action]")]
         public async Task<IResponse> Login([FromBody]LoginInputModel model) {
-            if (model == null || !ModelState.IsValid) {
+            if (model == null) {
                 throw new ArgumentNullException(nameof(model));
             }
 
@@ -44,7 +44,7 @@ namespace RigoFunc.IdentityServer.Api {
 
         [HttpPost("[action]")]
         public async Task<IResponse> VerifyCode([FromBody]VerifyCodeInputModel model) {
-            if (model == null || !ModelState.IsValid) {
+            if (model == null) {
                 throw new ArgumentNullException(nameof(model));
             }
 
@@ -53,7 +53,7 @@ namespace RigoFunc.IdentityServer.Api {
 
         [HttpPost("[action]")]
         public async Task<bool> ChangePassword([FromBody]ChangePasswordModel model) {
-            if (model == null || !ModelState.IsValid) {
+            if (model == null) {
                 throw new ArgumentNullException(nameof(model));
             }
 
@@ -62,7 +62,7 @@ namespace RigoFunc.IdentityServer.Api {
 
         [HttpPost("[action]")]
         public async Task<IResponse> ResetPassword([FromBody]ResetPasswordModel model) {
-            if (model == null || !ModelState.IsValid) {
+            if (model == null) {
                 throw new ArgumentNullException(nameof(model));
             }
 
@@ -71,7 +71,7 @@ namespace RigoFunc.IdentityServer.Api {
 
         [HttpPost("[action]")]
         public async Task<bool> Update([FromBody]OAuthUser model) {
-            if (model == null || !ModelState.IsValid) {
+            if (model == null) {
                 throw new ArgumentNullException(nameof(model));
             }
 

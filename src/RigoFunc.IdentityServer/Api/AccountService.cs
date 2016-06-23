@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.Text;
 using System.Threading.Tasks;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +25,7 @@ namespace RigoFunc.IdentityServer.Api {
         private readonly ILogger _logger;
         private readonly HttpContext _httpContext;
         private readonly AccountApiOptions _options;
+        private const string DefaultSecurityStamp = "022a9e42-9509-4aa6-8a0a-c34a1f405c61";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AccountService{TUser, TKey}"/> class.
@@ -45,6 +48,7 @@ namespace RigoFunc.IdentityServer.Api {
             _signInManager = signInManager;
             _emailSender = emailSender;
             _smsSender = smsSender;
+            _options = options.Value;
             _logger = loggerFactory.CreateLogger("AccountService"); ;
             _httpContext = contextAccessor.HttpContext;
         }
@@ -85,7 +89,7 @@ namespace RigoFunc.IdentityServer.Api {
 
             _logger.LogError(result.ToString());
 
-            throw new InvalidOperationException("User login failed");
+            throw new ArgumentException(string.Format(Resources.PhoneNumberOrPasswordError, model.UserName, model.Password));
         }
 
         /// <summary>
@@ -96,12 +100,11 @@ namespace RigoFunc.IdentityServer.Api {
         public async Task<IResponse> RegisterAsync(RegisterInputModel model) {
             var user = await _userManager.FindByNameAsync(model.PhoneNumber);
             if (user != null) {
-                throw new ArgumentException($"The user: {model.PhoneNumber} had been register.");
+                throw new ArgumentException(string.Format(Resources.PhoneNumberHadBeenRegister, model.PhoneNumber));
             }
 
-            user = await _userManager.FindByIdAsync("1");
-            if (user == null || !await _userManager.VerifyChangePhoneNumberTokenAsync(user, model.Code, model.PhoneNumber)) {
-                throw new ArgumentException($"cannot verify the code: {model.Code} for the phone: {model.PhoneNumber}");
+            if (!ValidateCode(model.Code, model.PhoneNumber)) {
+                throw new ArgumentException(string.Format(Resources.VerifyCodeFailed, model.Code));
             }
 
             user = new TUser { UserName = model.UserName ?? model.PhoneNumber, PhoneNumber = model.PhoneNumber };
@@ -114,7 +117,7 @@ namespace RigoFunc.IdentityServer.Api {
 
             _logger.LogError(result.ToString());
 
-            throw new ArgumentException($"cannot to register new user for phone: {model.PhoneNumber} code: {model.Code}");
+            throw new ArgumentException(string.Format(Resources.RegisterNewUserFailed, model.PhoneNumber, model.Code));
         }
 
         /// <summary>
@@ -125,11 +128,11 @@ namespace RigoFunc.IdentityServer.Api {
         public async Task<IResponse> ResetPasswordAsync(ResetPasswordModel model) {
             var user = await _userManager.FindByNameAsync(model.PhoneNumber);
             if (user == null) {
-                throw new ArgumentNullException($"cannot reset the password for user: {model.PhoneNumber}");
+                throw new ArgumentNullException(string.Format(Resources.NotFoundUserByPhoneNumber, model.PhoneNumber));
             }
 
             if (!await _userManager.VerifyChangePhoneNumberTokenAsync(user, model.Code, model.PhoneNumber)) {
-                throw new ArgumentException($"The code: {model.Code} is invalide or timeout with 3 minutes.");
+                throw new ArgumentException(string.Format(Resources.VerifyCodeFailed, model.Code));
             }
 
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -142,7 +145,7 @@ namespace RigoFunc.IdentityServer.Api {
 
             _logger.LogError(result.ToString());
 
-            throw new ArgumentNullException($"cannot reset the password for user: {model.PhoneNumber}");
+            throw new ArgumentNullException(string.Format(Resources.PasswordResetFailed, model.PhoneNumber));
         }
 
         /// <summary>
@@ -151,19 +154,28 @@ namespace RigoFunc.IdentityServer.Api {
         /// <param name="model">The send code model.</param>
         /// <returns>A <see cref="Task{TResult}"/> represents the send operation.</returns>
         public async Task<bool> SendCodeAsync(SendCodeInputModel model) {
+            string code;
             var user = await _userManager.FindByNameAsync(model.PhoneNumber);
             if (user == null) {
-                user = await _userManager.FindByIdAsync("1");
-            }
-
-            if (user != null) {
-                var code = await _userManager.GenerateChangePhoneNumberTokenAsync(user, model.PhoneNumber);
-                await _smsSender.SendSmsAsync(model.PhoneNumber, code);
-                return true;
+                code = GenerateCode(model.PhoneNumber);
             }
             else {
-                throw new ArgumentException($"cannot send code for the phone: {model.PhoneNumber}");
+                code = await _userManager.GenerateChangePhoneNumberTokenAsync(user, model.PhoneNumber);
             }
+
+            SendSmsResult result;
+            if (string.IsNullOrWhiteSpace(_options.SendCodeTemplate)) {
+                result = await _smsSender.SendSmsAsync(model.PhoneNumber, code);
+            }
+            else {
+                result = await _smsSender.SendSmsAsync(_options.SendCodeTemplate, model.PhoneNumber, Tuple.Create("code", code));
+            }
+
+            if (!result.IsSuccessSend) {
+                throw new ArgumentException(string.Format(Resources.SendCodeFailed, model.PhoneNumber, result.ErrorMessage));
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -174,7 +186,7 @@ namespace RigoFunc.IdentityServer.Api {
         public async Task<bool> UpdateAsync(OAuthUser model) {
             var user = await _userManager.FindByIdAsync(model.Id.ToString());
             if (user == null) {
-                throw new ArgumentException($"cannot found the user: {model.Id}");
+                throw new ArgumentException(string.Format(Resources.NotFoundUserById, model.Id));
             }
 
             var result = await _userManager.AddClaimsAsync(user, model.ToClaims());
@@ -184,21 +196,20 @@ namespace RigoFunc.IdentityServer.Api {
 
             _logger.LogError(result.ToString());
 
-            throw new ArgumentNullException("Update User failed");
+            throw new ArgumentNullException(Resources.UpdateUserFailed);
         }
 
         /// <summary>
         /// Verifies the specified code asynchronous.
         /// </summary>
-        /// <param name="model">The veriry code model.</param>
+        /// <param name="model">The verify code model.</param>
         /// <returns>A <see cref="Task{TResult}"/> represents the verify operation.</returns>
         public async Task<IResponse> VerifyCodeAsync(VerifyCodeInputModel model) {
             var password = $"{GenericUtil.UniqueKey()}@520";
             var user = await _userManager.FindByNameAsync(model.PhoneNumber);
             if (user == null) {
-                user = await _userManager.FindByIdAsync("1");
-                if (user == null || !await _userManager.VerifyChangePhoneNumberTokenAsync(user, model.Code, model.PhoneNumber)) {
-                    throw new ArgumentException($"cannot verify the code: {model.Code} for the phone: {model.PhoneNumber}");
+                if (!ValidateCode(model.Code, model.PhoneNumber)) {
+                    throw new ArgumentException(string.Format(Resources.VerifyCodeFailed, model.Code));
                 }
 
                 user = new TUser { UserName = model.PhoneNumber, PhoneNumber = model.PhoneNumber };
@@ -206,7 +217,16 @@ namespace RigoFunc.IdentityServer.Api {
                 if (result.Succeeded) {
                     await _signInManager.SignInAsync(user, isPersistent: false);
 
-                    await _smsSender.SendSmsAsync(model.PhoneNumber, password);
+                    SendSmsResult smsResult;
+                    if (string.IsNullOrWhiteSpace(_options.SendPasswordTemplate)) {
+                        smsResult = await _smsSender.SendSmsAsync(model.PhoneNumber, password);
+                    }
+                    else {
+                        smsResult = await _smsSender.SendSmsAsync(_options.SendPasswordTemplate, model.PhoneNumber, Tuple.Create("password", password));
+                    }
+                    if (!smsResult.IsSuccessSend) {
+                        throw new ArgumentException(string.Format(Resources.SendCodeFailed, model.PhoneNumber, smsResult.ErrorMessage));
+                    }
 
                     _logger.LogInformation(3, "User changed their password successfully.");
 
@@ -215,13 +235,14 @@ namespace RigoFunc.IdentityServer.Api {
 
                 _logger.LogError(result.ToString());
 
-                throw new ArgumentException($"cannot to register new user for phone: {model.PhoneNumber} code: {model.Code}");
+                throw new ArgumentException(string.Format(Resources.RegisterNewUserFailed, model.PhoneNumber, model.Code));
             }
             else {
                 if (!await _userManager.VerifyChangePhoneNumberTokenAsync(user, model.Code, model.PhoneNumber)) {
                     throw new ArgumentException($"cannot verify the code: {model.Code} for the phone: {model.PhoneNumber}");
                 }
 
+                // TODO: bypass the password login
                 // because we doesn't known the password.
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var result = await _userManager.ResetPasswordAsync(user, code, password);
@@ -233,7 +254,7 @@ namespace RigoFunc.IdentityServer.Api {
 
                 _logger.LogError(result.ToString());
 
-                throw new ArgumentNullException($"cannot login use code: {model.Code} for the user: {model.PhoneNumber}");
+                throw new ArgumentNullException(string.Format(Resources.LoginFailedWithCodeAndPhone, model.Code, model.PhoneNumber));
             }
         }
 
@@ -259,6 +280,23 @@ namespace RigoFunc.IdentityServer.Api {
             var response = await client.RequestResourceOwnerPasswordAsync(userName, password, scope);
 
             return ApiResponse.FromTokenResponse(response);
+        }
+
+        private string GenerateCode(string phoneNumber) {
+            var securityStamp = Encoding.Unicode.GetBytes(DefaultSecurityStamp);
+            return Rfc6238Service.GenerateCode(securityStamp, phoneNumber).ToString(CultureInfo.InvariantCulture);
+        }
+
+        private bool ValidateCode(string token, string phoneNumber) {
+            var securityStamp = Encoding.Unicode.GetBytes(DefaultSecurityStamp);
+            int code;
+            if (securityStamp != null && int.TryParse(token, out code)) {
+                if (Rfc6238Service.ValidateCode(securityStamp, code, phoneNumber)) {
+                    return true;
+                }
+            }
+            _logger.LogWarning(8, $"ValidateCode() failed for phone {phoneNumber}.");
+            return false;
         }
     }
 }

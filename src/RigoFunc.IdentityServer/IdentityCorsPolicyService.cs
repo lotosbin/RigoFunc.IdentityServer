@@ -4,17 +4,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using IdentityServer4.Services;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using RigoFunc.IdentityServer.Api;
 
 namespace RigoFunc.IdentityServer {
     public class IdentityCorsPolicyService : ICorsPolicyService {
         private readonly ILogger<IdentityCorsPolicyService> _logger;
-
-        public IdentityCorsPolicyService(ILogger<IdentityCorsPolicyService> logger) {
+        public IdentityCorsPolicyService(ILogger<IdentityCorsPolicyService> logger, IOptions<AccountApiOptions> options) {
             _logger = logger;
 
-            // allow Api route paths
-            AllowedOrigins = ApiConstants.RoutePaths;
+            var opt = options.Value;
+            AllowAnyOrigin = opt.AllowAnyOrigin;
+            if(opt.AllowedOrigins != null) {
+                AllowedOrigins = new List<string>(opt.AllowedOrigins);
+            }
         }
 
         /// <summary>
@@ -26,12 +29,12 @@ namespace RigoFunc.IdentityServer {
         public ICollection<string> AllowedOrigins { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether all origins are allowed.
+        /// Gets or sets a value indicating whether allows any origin.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if allow all; otherwise, <c>false</c>.
+        ///   <c>true</c> if allows any origin; otherwise, <c>false</c>.
         /// </value>
-        public bool AllowAll { get; set; }
+        public bool AllowAnyOrigin { get; set; }
 
         /// <summary>
         /// Determines whether the origin allowed.
@@ -39,8 +42,8 @@ namespace RigoFunc.IdentityServer {
         /// <param name="origin">The origin.</param>
         /// <returns></returns>
         public Task<bool> IsOriginAllowedAsync(string origin) {
-            if (AllowAll) {
-                _logger.LogInformation("AllowAll true, so origin: {0} is allowed", origin);
+            if (AllowAnyOrigin) {
+                _logger.LogInformation("AllowAnyOrigin true, so origin: {0} is allowed", origin);
                 return Task.FromResult(true);
             }
 

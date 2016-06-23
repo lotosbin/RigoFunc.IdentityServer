@@ -27,14 +27,14 @@ namespace Host.UI.Register {
             _logger = logger;
         }
 
-        [HttpGet]
+        [HttpGet("ui/register", Name = "Register")]
         [AllowAnonymous]
         public IActionResult Index(string returnUrl = null) {
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
-        [HttpPost]
+        [HttpPost("ui/register")]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(RegisterModel model, string returnUrl = null) {
