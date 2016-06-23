@@ -4,6 +4,9 @@
 #exit if any command fails
 set -e
 
+wget http://download.microsoft.com/download/C/3/F/C3FB57E8-03EB-4D82-946D-C0FD9864450C/dotnet-ubuntu-x64.1.0.0-rc2-3002702.tar.gz
+tar -zxvf dotnet-ubuntu-x64.1.0.0-rc2-3002702.tar.gz
+
 artifactsFolder="./artifacts"
 
 if [ -d $artifactsFolder ]; then  
