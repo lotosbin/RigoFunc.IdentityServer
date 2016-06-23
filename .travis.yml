@@ -1,16 +1,15 @@
+sudo: required
 language: csharp
+services:
+  - docker
 dist: trusty
-os: 
-  - linux
-mono:
-  - beta
 branches:
   only:
     - master
     - dev
 script:
-  - ./build.sh
-
+  - docker-compose up --build 
+  
 notifications:
   webhooks:
     urls:
