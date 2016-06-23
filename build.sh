@@ -13,13 +13,13 @@ if [ -d $artifactsFolder ]; then
   rm -R $artifactsFolder
 fi
 
-dotnet restore
+./dotnet restore
  
 #dotnet test ./src/Host -c Debug -f netcoreapp1.0
-dotnet build ./src/Host -c Debug -f netcoreapp1.0
+./dotnet build ./src/Host -c Debug -f netcoreapp1.0
 
 #dotnet test ./src/RigoFunc.IdentityServer -c Debug -f netcoreapp1.0
-dotnet build ./src/RigoFunc.IdentityServer Host -c Debug -f netcoreapp1.0
+./dotnet build ./src/RigoFunc.IdentityServer Host -c Debug -f netcoreapp1.0
 
 
 revision=${TRAVIS_JOB_ID:=1}  
