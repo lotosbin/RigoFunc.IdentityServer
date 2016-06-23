@@ -4,7 +4,7 @@ namespace RigoFunc.IdentityServer.Api {
     /// <summary>
     /// Represents the default implementation of the <see cref="IResponse"/> interface.
     /// </summary>
-    internal class OAuthResponse : IResponse {
+    internal class ApiResponse : IResponse {
         /// <summary>
         /// Gets the access token.
         /// </summary>
@@ -47,7 +47,7 @@ namespace RigoFunc.IdentityServer.Api {
         /// <value>The error.</value>
         public string Error { get; }
 
-        private OAuthResponse(TokenResponse response) {
+        private ApiResponse(TokenResponse response) {
             AccessToken = response.AccessToken;
             ExpiresIn = response.ExpiresIn;
             Raw = response.Raw;
@@ -57,7 +57,7 @@ namespace RigoFunc.IdentityServer.Api {
             Error = response.Error;
         }
 
-        private OAuthResponse(string error) {
+        private ApiResponse(string error) {
             IsError = true;
             Error = error;
         }
@@ -67,13 +67,13 @@ namespace RigoFunc.IdentityServer.Api {
         /// </summary>
         /// <param name="response">The token response.</param>
         /// <returns>A <see cref="IResponse"/> indicating a OAuth response.</returns>
-        public static IResponse FromTokenResponse(TokenResponse response) => new OAuthResponse(response);
+        public static IResponse FromTokenResponse(TokenResponse response) => new ApiResponse(response);
 
         /// <summary>
         /// Creates an <see cref="IResponse"/> indicating a failed OAuth response, with a <paramref name="error"/> if applicable.
         /// </summary>
         /// <param name="error">The error.</param>
         /// <returns>A <see cref="IResponse"/> indicating a failed OAuth response.</returns>
-        public static IResponse Failed(string error) => new OAuthResponse(error);
+        public static IResponse Failed(string error) => new ApiResponse(error);
     }
 }

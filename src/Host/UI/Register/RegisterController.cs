@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RigoFunc.ApiCore.Services;
-using RigoFunc.IdentityServer.EntityFrameworkCore;
+using Host.EntityFrameworkCore;
 
 namespace Host.UI.Register {
     public class RegisterController : Controller {
