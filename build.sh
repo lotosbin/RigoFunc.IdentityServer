@@ -4,8 +4,6 @@
 #exit if any command fails
 set -e
 
-apt-get install libunwind8 -y
-
 wget https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0-preview1/scripts/obtain/dotnet-install.sh
 chmod a+x dotnet-install.sh
 ./dotnet-install.sh --channel preview
