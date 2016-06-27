@@ -7,7 +7,6 @@ set -e
 wget https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0-preview1/scripts/obtain/dotnet-install.sh
 chmod a+x dotnet-install.sh
 ./dotnet-install.sh --channel preview
-source /home/travis/.dotnet
 PATH=$PATH:~/.dotnet
 
 artifactsFolder="./artifacts"
