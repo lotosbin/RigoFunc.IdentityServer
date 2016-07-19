@@ -33,6 +33,38 @@ namespace Host.Configuration
                 },
                 new Scope
                 {
+                    Name = "consultant",
+                    DisplayName = "consultant Api.",
+                    Description = "consultant Api.",
+                    Type = ScopeType.Resource,
+
+                    ScopeSecrets = new List<Secret>
+                    {
+                        new Secret("secret".Sha256())
+                    },
+                    Claims = new List<ScopeClaim>
+                    {
+                        new ScopeClaim("role")
+                    }
+                },
+                new Scope
+                {
+                    Name = "finance",
+                    DisplayName = "finance Api.",
+                    Description = "finance Api.",
+                    Type = ScopeType.Resource,
+
+                    ScopeSecrets = new List<Secret>
+                    {
+                        new Secret("secret".Sha256())
+                    },
+                    Claims = new List<ScopeClaim>
+                    {
+                        new ScopeClaim("role")
+                    }
+                },
+                new Scope
+                {
                     Name = "order",
                     DisplayName = "order Api.",
                     Description = "order Api.",

@@ -26,9 +26,11 @@ namespace Host.Configuration
                         StandardScopes.Email.Name,
                         StandardScopes.Roles.Name,
                         StandardScopes.OfflineAccess.Name,
-                        "doctor", "order", "payment"
+                        "doctor", "consultant", "finance", "order", "payment"
                     },
 
+                    // Defaults to 1296000 seconds / 15 days
+                    AccessTokenLifetime = 1296000,
                     AccessTokenType = AccessTokenType.Reference
                 },
 

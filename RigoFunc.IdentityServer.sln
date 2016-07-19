@@ -1,19 +1,38 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{20804C46-0E17-464C-A5FD-F447F9DF7DAF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A7DB4427-1C55-4158-BCEE-3F9A4C254A5E}"
 	ProjectSection(SolutionItems) = preProject
+		build.cmd = build.cmd
+		build.ps1 = build.ps1
+		build.sh = build.sh
+		docker-compose.yml = docker-compose.yml
 		global.json = global.json
+		nuget-push.bat = nuget-push.bat
 		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RigoFunc.IdentityServer", "src\RigoFunc.IdentityServer\RigoFunc.IdentityServer.xproj", "{59D63571-C4C2-4DAA-AAC6-969F581DC1FA}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Host", "src\Host\Host.xproj", "{784B3C88-30FA-415D-B99E-584063064508}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RigoFunc.IdentityServer.UnitTest", "test\RigoFunc.IdentityServer.UnitTest\RigoFunc.IdentityServer.UnitTest.xproj", "{552C3A4E-7278-46D5-8157-6A2D51EDA498}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{BB94CC11-C54F-48C2-8744-88108C0D056B}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RigoFunc.IdentityServer.IntergrationTests", "test\RigoFunc.IdentityServer.IntergrationTests\RigoFunc.IdentityServer.IntergrationTests.xproj", "{BB138618-E9BB-419D-AD6A-F6955A96A94A}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RigoFunc.IdentityServer.RedisStore", "src\RigoFunc.IdentityServer.RedisStore\RigoFunc.IdentityServer.RedisStore.xproj", "{7616040A-D75D-42A2-8A56-A09BB59E7947}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RigoFunc.IdentityServer.DistributedStore", "src\RigoFunc.IdentityServer.DistributedStore\RigoFunc.IdentityServer.DistributedStore.xproj", "{1589B5E7-250D-4E0E-A567-608A4BB97333}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RigoFunc.IdentityServer.Services.EntityFrameworkCore", "src\RigoFunc.IdentityServer.Services.EntityFrameworkCore\RigoFunc.IdentityServer.Services.EntityFrameworkCore.xproj", "{D8070FFB-A41A-4CFF-ADC5-6282DD2D58FD}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RigoFunc.IdentityServer.Services.EntityFrameworkCore.UnitTests", "test\RigoFunc.IdentityServer.Services.EntityFrameworkCore.UnitTests\RigoFunc.IdentityServer.Services.EntityFrameworkCore.UnitTests.xproj", "{39CB06F9-201C-42B3-91A9-81DC6F7484B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +48,30 @@ Global
 		{784B3C88-30FA-415D-B99E-584063064508}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{784B3C88-30FA-415D-B99E-584063064508}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{784B3C88-30FA-415D-B99E-584063064508}.Release|Any CPU.Build.0 = Release|Any CPU
+		{552C3A4E-7278-46D5-8157-6A2D51EDA498}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{552C3A4E-7278-46D5-8157-6A2D51EDA498}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{552C3A4E-7278-46D5-8157-6A2D51EDA498}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{552C3A4E-7278-46D5-8157-6A2D51EDA498}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB138618-E9BB-419D-AD6A-F6955A96A94A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB138618-E9BB-419D-AD6A-F6955A96A94A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB138618-E9BB-419D-AD6A-F6955A96A94A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB138618-E9BB-419D-AD6A-F6955A96A94A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7616040A-D75D-42A2-8A56-A09BB59E7947}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7616040A-D75D-42A2-8A56-A09BB59E7947}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7616040A-D75D-42A2-8A56-A09BB59E7947}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7616040A-D75D-42A2-8A56-A09BB59E7947}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1589B5E7-250D-4E0E-A567-608A4BB97333}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1589B5E7-250D-4E0E-A567-608A4BB97333}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1589B5E7-250D-4E0E-A567-608A4BB97333}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1589B5E7-250D-4E0E-A567-608A4BB97333}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8070FFB-A41A-4CFF-ADC5-6282DD2D58FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8070FFB-A41A-4CFF-ADC5-6282DD2D58FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8070FFB-A41A-4CFF-ADC5-6282DD2D58FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8070FFB-A41A-4CFF-ADC5-6282DD2D58FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39CB06F9-201C-42B3-91A9-81DC6F7484B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39CB06F9-201C-42B3-91A9-81DC6F7484B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39CB06F9-201C-42B3-91A9-81DC6F7484B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39CB06F9-201C-42B3-91A9-81DC6F7484B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -36,5 +79,11 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{59D63571-C4C2-4DAA-AAC6-969F581DC1FA} = {20804C46-0E17-464C-A5FD-F447F9DF7DAF}
 		{784B3C88-30FA-415D-B99E-584063064508} = {20804C46-0E17-464C-A5FD-F447F9DF7DAF}
+		{552C3A4E-7278-46D5-8157-6A2D51EDA498} = {BB94CC11-C54F-48C2-8744-88108C0D056B}
+		{BB138618-E9BB-419D-AD6A-F6955A96A94A} = {BB94CC11-C54F-48C2-8744-88108C0D056B}
+		{7616040A-D75D-42A2-8A56-A09BB59E7947} = {20804C46-0E17-464C-A5FD-F447F9DF7DAF}
+		{1589B5E7-250D-4E0E-A567-608A4BB97333} = {20804C46-0E17-464C-A5FD-F447F9DF7DAF}
+		{D8070FFB-A41A-4CFF-ADC5-6282DD2D58FD} = {20804C46-0E17-464C-A5FD-F447F9DF7DAF}
+		{39CB06F9-201C-42B3-91A9-81DC6F7484B4} = {BB94CC11-C54F-48C2-8744-88108C0D056B}
 	EndGlobalSection
 EndGlobal

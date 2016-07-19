@@ -1,0 +1,1 @@
+nuget push %1 -source nuget -apikey %NUGET_API_KEY%

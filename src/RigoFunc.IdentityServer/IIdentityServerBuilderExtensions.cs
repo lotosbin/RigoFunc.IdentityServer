@@ -1,30 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using IdentityModel;
+﻿using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Configuration;
-using IdentityServer4.Hosting.Cors;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
-using RigoFunc.IdentityServer.Api;
 
 namespace RigoFunc.IdentityServer {
+    /// <summary>
+    /// Contains extension methods to <see cref="IIdentityServerBuilder"/> for configuring identity server.
+    /// </summary>
     public static class IIdentityServerBuilderExtensions {
-        public static IIdentityServerBuilder UseAspNetCoreIdentity<TUser, TKey>(this IIdentityServerBuilder builder) 
-            where TUser : IdentityUser<TKey> where TKey : IEquatable<TKey> {
+        /// <summary>
+        /// Configures the Asp.Net Core Identity.
+        /// </summary>
+        /// <typeparam name="TUser">The type of the user.</typeparam>
+        /// <param name="builder">The builder.</param>
+        /// <returns>IIdentityServerBuilder.</returns>
+        public static IIdentityServerBuilder ConfigureAspNetCoreIdentity<TUser>(this IIdentityServerBuilder builder)
+            where TUser : class {
             var services = builder.Services;
 
-            services.TryAddTransient<SignInManager<TUser>, IdentityServerSignInManager<TUser>>();
-            services.TryAddTransient<IProfileService, IdentityProfileService<TUser, TKey>>();
-            services.TryAddTransient<IResourceOwnerPasswordValidator, IdentityResourceOwnerPasswordValidator<TUser>>();
+            services.AddScoped<SignInManager<TUser>, IdentityServerSignInManager<TUser>>();
+            services.AddTransient<IProfileService, IdentityProfileService<TUser>>();
+            services.AddTransient<IResourceOwnerPasswordValidator, IdentityResourceOwnerPasswordValidator<TUser>>();
 
             services.Configure<IdentityOptions>(options => {
                 options.Cookies.ApplicationCookie.AuthenticationScheme = Constants.PrimaryAuthenticationType;
@@ -40,32 +41,6 @@ namespace RigoFunc.IdentityServer {
                options => {
                    options.AuthenticationOptions.PrimaryAuthenticationScheme = Constants.PrimaryAuthenticationType;
                });
-
-            return builder;
-        }
-
-        public static IIdentityServerBuilder UseAccountApi<TUser, TKey>(this IIdentityServerBuilder builder, Action<AccountApiOptions> setupAction)
-            where TUser : IdentityUser<TKey>, new() where TKey : IEquatable<TKey> {
-            var services = builder.Services;
-            if (setupAction != null) {
-                services.Configure(setupAction);
-            }
-            // try add default account service, or use the end-user DI in startup.cs
-            services.TryAddTransient<IAccountService, AccountService<TUser, TKey>>();
-            services.AddTransient<ICorsPolicyService, IdentityCorsPolicyService>();
-
-            var paths = new List<string>(Constants.RoutePaths.CorsPaths);
-
-            paths.AddRange(ApiConstants.RoutePaths);
-
-            // just for allow CORS for Api
-            services.AddTransient<ICorsPolicyProvider>(provider => {
-                return new PolicyProvider(
-                    provider.GetRequiredService<ILogger<PolicyProvider>>(),
-                    paths,
-                    provider.GetRequiredService<ICorsPolicyService>());
-            });
-            services.AddCors();
 
             return builder;
         }

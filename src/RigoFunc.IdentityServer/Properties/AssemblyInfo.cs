@@ -17,3 +17,4 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("59d63571-c4c2-4daa-aac6-969f581dc1fa")]
+[assembly: InternalsVisibleTo("RigoFunc.IdentityServer.IntergrationTests")]

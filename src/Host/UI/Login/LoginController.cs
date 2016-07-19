@@ -70,7 +70,6 @@ namespace Host.UI.Login {
                 }
                 else {
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return View(model);
                 }
             }
 

@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using Host.Configuration;
+using Host.Cors;
 using Host.EntityFrameworkCore;
 using Host.Extensions;
 using Microsoft.AspNetCore.Builder;
@@ -45,23 +46,47 @@ namespace Host {
 
             // Sms and email services
             services.AddSmsEmailService(options => {
-                options.SmsApiUrl = "http://www.xyting.org";
-                options.ProductName = "rigofunc";
-                options.ProductValue = "rigofunc";
+                options.SmsApiUrl = Configuration["Services:SendSmsApiUlr"];
+                options.EmailApiUrl = Configuration["Services:SendEmailApiUlr"];
+            });
+
+            // Use RigoFunc.Account default account service.
+            services.UseDefaultAccountService<AppUser>(options => {
+                options.DefaultClientId = "system";
+                options.DefaultClientSecret = "secret";
+                options.DefaultScope = "doctor consultant finance order payment";
+                options.CodeSmsTemplate = "SmsTemplate";
+                options.PasswordSmsTemplate = "PassTemplate";
+            });
+
+            services.AddDistributedSqlServerCache(options => {
+                options.ConnectionString = Configuration["Data:Default:ConnectionString"];
+                options.SchemaName = "dbo";
+                options.TableName = "TokenCache";
             });
 
             var cert = new X509Certificate2(Path.Combine(_environment.ContentRootPath, "idsrv3test.pfx"), "idsrv3test");
-
             var builder = services.AddIdentityServer()
-                .SetSigningCredentials(cert)
+                .SetSigningCredential(cert)
                 .AddInMemoryClients(Clients.Get())
                 .AddInMemoryScopes(Scopes.Get())
                 .AddCustomGrantValidator<CustomGrantValidator>()
-                .UseAspNetCoreIdentity<AppUser, int>()
-                .UseAccountApi<AppUser, int>(options => {
-                    options.DefaultClientId = "system";
-                    options.DefaultClientSecret = "secret";
-                    options.DefaultScope = "doctor order payment";
+                .AddDistributedStores()
+                .ConfigureAspNetCoreIdentity<AppUser>()
+                // what a fuck solution
+                .FixCorsIssues(options => {
+                    options.AllowAnyOrigin = true;
+                }, new string[] {
+                    "api/account/lockout",
+                    "api/account/register",
+                    "api/account/sendcode",
+                    "api/account/login",
+                    "api/account/verifycode",
+                    "api/account/changepassword",
+                    "api/account/resetpassword",
+                    "api/account/update",
+                    "api/weixin/bind",
+                    "api/weixin/login"
                 });
 
             // for the UI
